@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     text_line_t* item;
     FILE *file = fopen(argv[1], "rb");
     if (!file){
-        printf("open %s failed.\n");
+        printf("open %s failed.\n", argv[1]);
         return -1;
     }
 
