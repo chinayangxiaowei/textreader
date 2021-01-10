@@ -211,13 +211,12 @@ void add_line(text_line_list* list, wchar_t* str) {
         if (list->begin == NULL)
             list->begin = item;
 
-        if (list->end == NULL) {
-            list->end = item;
-        }
-        else {
+        if (list->end) {
             list->end->next = item;
-            list->end = item;
         }
+
+        list->end = item;
+
         list->count++;
     }
 }
@@ -260,14 +259,17 @@ unsigned int read_text_lines(FILE* file, text_line_list* list) {
         buf = (char*)malloc(len + sizeof(wchar_t));
         if (buf) {
             n = fgetline((void*)buf, file, encode);
-            buf[n] = '\0'; n++;
-            buf[n] = '\0';
+            memset(&buf[n],0,sizeof(wchar_t));
 
             if (encode == text_encode_ucs2_little || encode == text_encode_ucs2_big) {
                 add_line(list, (wchar_t*)buf);
             }
             else if (encode == text_encode_utf8 || encode == text_encode_utf8_bom) {
-                add_line(list, UTF8ToUCS2(buf));
+                wchar_t *wstr=UTF8ToUCS2(buf);
+                if (wstr){
+                    add_line(list, wstr);
+                }
+                free(buf);
             }
             else {
                 //The fixed buffer width is used here, and it can be changed to a lager buffer size if necessary.
